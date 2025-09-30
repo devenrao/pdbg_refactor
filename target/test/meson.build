@@ -48,5 +48,13 @@ executable(
     'targeting-app',
     'targeting_app.C',
     dependencies: [libfdt_dep,  targeting_dep, targetsvc_dep],
+    install: true,
 )
 
+# Build main executable linking with both libraries
+executable(
+    'target-dump',
+    '../targeting/xmltohb/targeting_dump.C',
+    dependencies: [libfdt_dep,  targeting_dep, targetsvc_dep],
+    install: true,
+)
