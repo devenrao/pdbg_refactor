@@ -34,46 +34,46 @@ int main()
         print_all_node_paths(ts.getFDT());
         */
         auto& ts = TargetService::instance();
-        ts.init("target/test/targeting_test.dtb");
+        ts.init("/tmp/targeting_test.dtb");
         auto top = TargetService::instance().getTopLevelTarget();
-        std::cout
-            << "Test1: All targets with ATTR_PHYS_PATH childByPhysical all\n";
-        {
-            PredicateAttr<ATTR_PHYS_PATH> pred;
-            for (auto&& tgt :
-                 ts.getAssociated(top, AssociationType::childByPhysical,
-                                  RecursionLevel::all, &pred))
-            {
-                EntityPath path;
-                if (tgt->tryGetAttr<ATTR_PHYS_PATH>(path))
-                {
-                    std::cout << "  " << path.toString() << "\n";
-                }
-                else
-                {
-                    std::cout << "ATTR_PHYS_PATH not found " << std::endl;
-                }
-            }
-        }
-        std::cout
-            << "Test2: All targets with ATTR_PHYS_PATH childByAffinity all \n";
-        {
-            PredicateAttr<ATTR_PHYS_PATH> pred;
-            for (auto&& tgt :
-                 ts.getAssociated(top, AssociationType::childByAffinity,
-                                  RecursionLevel::all, &pred))
-            {
-                EntityPath path;
-                if (tgt->tryGetAttr<ATTR_PHYS_PATH>(path))
-                {
-                    std::cout << "  " << path.toString() << "\n";
-                }
-                else
-                {
-                    std::cout << "ATTR_PHYS_PATH not found " << std::endl;
-                }
-            }
-        }
+        // std::cout
+        //     << "Test1: All targets with ATTR_PHYS_PATH childByPhysical all\n";
+        // {
+        //     PredicateAttr<ATTR_PHYS_PATH> pred;
+        //     for (auto&& tgt :
+        //          ts.getAssociated(top, AssociationType::childByPhysical,
+        //                           RecursionLevel::all, &pred))
+        //     {
+        //         EntityPath path;
+        //         if (tgt->tryGetAttr<ATTR_PHYS_PATH>(path))
+        //         {
+        //             std::cout << "  " << path.toString() << "\n";
+        //         }
+        //         else
+        //         {
+        //             std::cout << "ATTR_PHYS_PATH not found " << std::endl;
+        //         }
+        //     }
+        // }
+        // std::cout
+        //     << "Test2: All targets with ATTR_PHYS_PATH childByAffinity all \n";
+        // {
+        //     PredicateAttr<ATTR_PHYS_PATH> pred;
+        //     for (auto&& tgt :
+        //          ts.getAssociated(top, AssociationType::childByAffinity,
+        //                           RecursionLevel::all, &pred))
+        //     {
+        //         EntityPath path;
+        //         if (tgt->tryGetAttr<ATTR_PHYS_PATH>(path))
+        //         {
+        //             std::cout << "  " << path.toString() << "\n";
+        //         }    
+        //         else
+        //         {
+        //             std::cout << "ATTR_PHYS_PATH not found " << std::endl;
+        //         }
+        //     }
+        // }
         std::cout << "Test3: PredicatePostFoxExpr AttrVal and Attr \n";
         {
             PredicatePostfixExpr procAndDevPath;
@@ -100,51 +100,51 @@ int main()
                 }
             }
         }
-        std::cout
-            << "Test4: Endian conversion when read uint32_t value from dtb file \n";
-        {
-            PredicatePostfixExpr pred;
-            pred.push(std::make_shared<PredicateAttrVal<ATTR_TYPE>>(TYPE_PROC))
-                .push(std::make_shared<PredicateAttrVal<ATTR_FAPI_POS>>(0x1))
-                .And();
-            auto top = ts.getTopLevelTarget();
-            for (auto&& tgt :
-                 ts.getAssociated(top, AssociationType::childByPhysical,
-                                  RecursionLevel::all, &pred))
-            {
-                ATTR_FAPI_POS_type pos = tgt->getAttr<ATTR_FAPI_POS>();
-                std::cout << std::hex << "0x" << pos << std::endl;
-            }
-        }
-        std::cout << "Test5: Convert ocmb1 binary data to EntityPath and to Target\n";
-        {
+        // std::cout
+        //     << "Test4: Endian conversion when read uint32_t value from dtb file \n";
+        // {
+        //     PredicatePostfixExpr pred;
+        //     pred.push(std::make_shared<PredicateAttrVal<ATTR_TYPE>>(TYPE_PROC))
+        //         .push(std::make_shared<PredicateAttrVal<ATTR_FAPI_POS>>(0x1))
+        //         .And();
+        //     auto top = ts.getTopLevelTarget();
+        //     for (auto&& tgt :
+        //          ts.getAssociated(top, AssociationType::childByPhysical,
+        //                           RecursionLevel::all, &pred))
+        //     {
+        //         ATTR_FAPI_POS_type pos = tgt->getAttr<ATTR_FAPI_POS>();
+        //         std::cout << std::hex << "0x" << pos << std::endl;
+        //     }
+        // }
+        // std::cout << "Test5: Convert ocmb1 binary data to EntityPath and to Target\n";
+        // {
 
-            std::array<uint8_t, 21> bin = {
-                0x23, 0x01, 0x00, 0x02, 0x00, 0x4B, 0x01,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  };
-            EntityPath path =
-                EntityPath::fromBinary(std::span<const uint8_t>{bin});
-            ConstTargetPtr ocmbTarget = ts.toTarget(path);
-            EntityPath ocmbEntityPath;
-            ocmbTarget->tryGetAttr<ATTR_PHYS_PATH>(ocmbEntityPath);
-            std::cout << " ocmb target physical path "
-                      << ocmbEntityPath.toString() << "\n";
+        //     std::array<uint8_t, 21> bin = {
+        //         0x23, 0x01, 0x00, 0x02, 0x00, 0x4B, 0x01,
+        //         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        //         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  };
+        //     EntityPath path =
+        //         EntityPath::fromBinary(std::span<const uint8_t>{bin});
+        //     ConstTargetPtr ocmbTarget = ts.toTarget(path);
+        //     EntityPath ocmbEntityPath;
+        //     ocmbTarget->tryGetAttr<ATTR_PHYS_PATH>(ocmbEntityPath);
+        //     std::cout << " ocmb target physical path "
+        //               << ocmbEntityPath.toString() << "\n";
 
-            TargetPtr parentp =
-                ts.getParentOf(ocmbTarget, AssociationType::parentByPhysical);
-            EntityPath ocmbParentPhyPath;
-            parentp->tryGetAttr<ATTR_PHYS_PATH>(ocmbParentPhyPath);
-            std::cout << " parent of ocmb parent affinity path "
-                      << ocmbParentPhyPath.toString() << "\n";
+        //     TargetPtr parentp =
+        //         ts.getParentOf(ocmbTarget, AssociationType::parentByPhysical);
+        //     EntityPath ocmbParentPhyPath;
+        //     parentp->tryGetAttr<ATTR_PHYS_PATH>(ocmbParentPhyPath);
+        //     std::cout << " parent of ocmb parent affinity path "
+        //               << ocmbParentPhyPath.toString() << "\n";
 
-            TargetPtr parenta =
-                ts.getParentOf(ocmbTarget, AssociationType::parentByAffinity);
-            EntityPath ocmbParentAffPath;
-            parenta->tryGetAttr<ATTR_AFFINITY_PATH>(ocmbParentAffPath);
-            std::cout << " parent of ocmb parent affinity path "
-                      << ocmbParentAffPath.toString() << "\n";
-        }
+        //     TargetPtr parenta =
+        //         ts.getParentOf(ocmbTarget, AssociationType::parentByAffinity);
+        //     EntityPath ocmbParentAffPath;
+        //     parenta->tryGetAttr<ATTR_AFFINITY_PATH>(ocmbParentAffPath);
+        //     std::cout << " parent of ocmb parent affinity path "
+        //               << ocmbParentAffPath.toString() << "\n";
+        // }
     }
     catch (std::exception& ex)
     {

@@ -75,4 +75,10 @@ template <> inline int64_t betoh_integral<int64_t>(int64_t v)
     auto u = static_cast<uint64_t>(v);
     return static_cast<int64_t>(betoh_integral(u));
 }
+// For enums
+template <typename T>
+inline T betoh_integral(T v) {
+    auto u = static_cast<uint32_t>(v);
+    return static_cast<T>(be32toh(u));
+}
 } // namespace util

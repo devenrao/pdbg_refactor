@@ -205,7 +205,6 @@ bool Target::tryGetAttrImpl(T& o_attrValue) const
     if (auto nameOpt = tryGetAttrName<A>(); nameOpt)
     {
         const auto& propName = *nameOpt;
-        std::cout << "Target::tryGetAttr name " << propName << std::endl;
         auto propData = fdtGetProperty(_fdt, _offset, propName);
         if (!propData.has_value())
             return false;
@@ -238,13 +237,36 @@ bool Target::tryGetAttrImpl(T& o_attrValue) const
             return copyBytes(o_attrValue);
         }
         else
-        { // scalar/POD
-            if (!copyBytes(o_attrValue))
+        {
+            if (span.size() > sizeof(TraitType))
+            {
                 return false;
-            if constexpr (std::is_integral_v<TraitType> &&
+            }
+            TraitType temp{};
+            std::memcpy(&temp, span.data(), span.size());
+
+            //If integral and multi-byte, swap from BE to host.
+            if constexpr ((std::is_integral_v<TraitType> || std::is_enum_v<TraitType>) &&
                           sizeof(TraitType) > 1)
             {
-                o_attrValue = util::betoh_integral<TraitType>(o_attrValue);
+
+                temp = util::betoh_integral<TraitType>(temp);
+            }
+
+            if constexpr (std::is_array_v<TraitType> &&
+                std::is_same_v<std::remove_cv_t<std::remove_extent_t<TraitType>>, unsigned char>)
+            {
+                // TraitType is something like unsigned char[N], while T is std::array<unsigned char, N>
+                std::copy(std::begin(temp), std::end(temp), o_attrValue.begin());
+            }
+            else if constexpr (std::is_array_v<T>)
+            {
+                // If both sides are C-style arrays
+                std::memcpy(o_attrValue, &temp, sizeof(TraitType));
+            }
+            else
+            {
+                o_attrValue = temp;   // normal scalar
             }
         }
 
@@ -282,6 +304,7 @@ bool Target::trySetAttrImpl(const T& attrValue)
         }
         else
         { // scalar/POD
+            // TODO: Deepa: here also we will need the changes
             using TraitType = typename AttributeTraits<A>::Type;
             TraitType tmp = attrValue;
             if constexpr (std::is_integral_v<TraitType> &&
